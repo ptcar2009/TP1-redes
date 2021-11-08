@@ -28,9 +28,6 @@ client: $(COMMON_OBJ) $(CLIENT_OBJ)
 
 .PHONY: clean
 
-main: $(COMMON_OBJ) $(ODIR)/main.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-
 clean:
 	rm -f $(ODIR)/*.o
 	rm -f client server main
