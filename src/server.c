@@ -12,8 +12,12 @@
 
 #include "common.h"
 
+#define N_POKEMONS 888
+
 trie_node_p t;
 int running[POOLSZ] = {0};
+
+extern char* pokemons[];
 
 trie_node_p new_trie() {
   trie_node_p ret = malloc(sizeof(trie_node));
@@ -268,10 +272,7 @@ int process_kill(int socket, char* msg) { return 1; }
 
 int done = 0;
 int process_invalid(int socket, char* msg) {
-  char response[BUFSZ];
   INFO("received invalid message");
-  sprintf(response, "invalid message\n");
-  send_message(socket, response);
   return 1;
 }
 
@@ -290,9 +291,9 @@ void* process_request(void* data) {
   running[cdata->thread_id] = 1;
   struct sockaddr* caddr = (struct sockaddr*)&cdata->storage;
 
-  char caddr_str[BUFSZ];
-  addrtostr(caddr, caddr_str);
-  INFO("received connection from %s", caddr_str);
+  char caddr_str[BUFSZ] = {0};
+  if (!addrtostr(caddr, caddr_str))
+    INFO("received connection from %s", caddr_str);
   char buf[BUFSZ] = {0};
 
   size_t count;
@@ -351,8 +352,10 @@ int server_protocol_parse(const char* protocolstr, const char* portstr,
   return -1;
 }
 
-void term(int signum) { INFO("intercepted sigterm"); done = 1; }
-
+void term(int signum) {
+  INFO("intercepted sigterm");
+  done = 1;
+}
 
 int main(int argc, char* argv[]) {
   pthread_t pool[POOLSZ];
@@ -365,10 +368,7 @@ int main(int argc, char* argv[]) {
   sigaction(SIGINT, &action, NULL);
 
   t = new_trie();
-  FILE* fp = fopen("pokemon.txt", "r");
-  if (fp == NULL) FATAL("");
-  char pokemon[BUFSZ];
-  while (fscanf(fp, "%s", pokemon) != EOF) insert_into_dictionary(t, pokemon);
+  for (int i = 0; i < N_POKEMONS; ++i) insert_into_dictionary(t, pokemons[i]);
 
   struct sockaddr_storage storage;
   memset(&storage, 0, sizeof(struct sockaddr_storage));
@@ -377,7 +377,7 @@ int main(int argc, char* argv[]) {
   if (server_protocol_parse(argv[1], argv[2], &storage))
     FATAL("address translation failed");
 
-  char addr_str[BUFSZ];
+  char addr_str[BUFSZ] = {0};
   struct sockaddr* addr = (struct sockaddr*)(&storage);
   addrtostr(addr, addr_str);
 
@@ -398,10 +398,11 @@ int main(int argc, char* argv[]) {
 
   while (!done) {
     struct sockaddr_storage cstorage;
-    memset(&cstorage, 0, sizeof(struct sockaddr_storage));
 
-    socklen_t len = 0;
+    socklen_t len = sizeof(cstorage);
+
     struct sockaddr* caddr = (struct sockaddr*)&cstorage;
+
     if (done) break;
     int csock = accept(sock, caddr, &len);
     if (csock == -1) {
@@ -413,15 +414,13 @@ int main(int argc, char* argv[]) {
     cdata->storage = cstorage;
     cdata->thread_id = cur_thread;
 
-    if (running[cur_thread])
-      pthread_join(pool[cur_thread], NULL);
+    if (running[cur_thread]) pthread_join(pool[cur_thread], NULL);
     pthread_create(&pool[cur_thread], NULL, process_request, cdata);
     cur_thread = (cur_thread + 1) % POOLSZ;
   }
   for (int i = 0; i < POOLSZ; ++i) {
-    pthread_join(pool[i], NULL);
+    if (running[i]) pthread_join(pool[i], NULL);
   }
   delete_trie(t);
-  fclose(fp);
 }
 
