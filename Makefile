@@ -1,6 +1,6 @@
 IDIR =inc
-CC=gcc
-LOG_LEVEL ?= 1
+CC ?= gcc
+LOG_LEVEL ?= 2
 CFLAGS=-I$(IDIR) -DLOG_LEVEL=$(LOG_LEVEL) -Wall -lpthread -g
 
 SDIR=src
@@ -12,7 +12,7 @@ COMMON_OBJ=$(patsubst %,$(ODIR)/%,$(_COMMON_OBJ))
 _CLIENT_OBJ = client.o
 CLIENT_OBJ=$(patsubst %,$(ODIR)/%,$(_CLIENT_OBJ))
 
-_SERVER_OBJ = server.o
+_SERVER_OBJ = server.o pokemon.o
 SERVER_OBJ=$(patsubst %,$(ODIR)/%,$(_SERVER_OBJ))
 
 all: client server
