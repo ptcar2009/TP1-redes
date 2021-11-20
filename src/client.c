@@ -74,7 +74,9 @@ int main(int argc, char const* argv[]) {
   char buf[BUFSZ] = {0};
   while (1) {
     printf("> ");
-    fgets(buf, BUFSZ, stdin);
+    if (!fgets(buf, BUFSZ, stdin))
+      sprintf(buf, "%s", "kill\n");
+
     if (send_message_to_server(sock, buf) == -1) {
       break;
     }
