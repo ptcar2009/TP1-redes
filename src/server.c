@@ -317,7 +317,6 @@ void* process_request(void* data) {
       msg = strtok(NULL, "\n");
     }
   }
-  running[cdata->thread_id] = 0;
   close(cdata->socket);
   free(cdata);
   return NULL;
@@ -414,7 +413,10 @@ int main(int argc, char* argv[]) {
     cdata->storage = cstorage;
     cdata->thread_id = cur_thread;
 
-    if (running[cur_thread]) pthread_join(pool[cur_thread], NULL);
+    if (running[cur_thread]) {
+      pthread_join(pool[cur_thread], NULL);
+      pool[cur_thread] = 0;
+    }
     pthread_create(&pool[cur_thread], NULL, process_request, cdata);
     cur_thread = (cur_thread + 1) % POOLSZ;
   }
