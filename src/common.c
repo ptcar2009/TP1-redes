@@ -41,7 +41,7 @@ int addrtostr(const struct sockaddr* addr, char* dst) {
 }
 
 char* time_stamp() {
-  char* timestamp = (char*)malloc(sizeof(char) * 16);
+  char* timestamp = (char*)malloc(BUFSZ);
   time_t ltime;
   ltime = time(NULL);
   struct tm* tm;
@@ -57,103 +57,64 @@ char* time_stamp() {
 #define LOG_LEVEL_INFO 2
 #define LOG_LEVEL_DEBUG 3
 
-#if (LOG_LEVEL == LOG_LEVEL_INFO)
+#if (LOG_LEVEL >= LOG_LEVEL_INFO)
 void INFO(char* format, ...) {
   va_list args;
   va_start(args, format);
-  printf("%s [INFO] ", time_stamp());
+  char* ts = time_stamp();
+  printf("%s [INFO] ",ts );
+  free(ts);
   vprintf(format, args);
   printf("\n");
   va_end(args);
 }
-void DEBUG(char* format, ...) {}
-void FATAL(char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  printf("%s [FATAL] ", time_stamp());
-  vprintf(format, args);
-  printf(" ERROR: %s\n", strerror(errno));
-  va_end(args);
-  exit(1);
-}
+#else
+void INFO(char* format, ...) {};
+#endif
 
-void ERROR(char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  printf("%s [ERROR] ", time_stamp());
-  vprintf(format, args);
-  printf(" ERROR: %s\n", strerror(errno));
-  va_end(args);
-}
-
-#elif (LOG_LEVEL == LOG_LEVEL_DEBUG)
-void INFO(char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  printf("%s [INFO] ", time_stamp());
-  vprintf(format, args);
-  printf("\n");
-  va_end(args);
-}
+#if (LOG_LEVEL >= LOG_LEVEL_DEBUG)
 void DEBUG(char* format, ...) {
   va_list args;
   va_start(args, format);
-  printf("%s [DEBUG] ", time_stamp());
+  char* ts = time_stamp();
+  printf("%s [DEBUG] ",ts );
+  free(ts);
   vprintf(format, args);
   printf("\n");
   va_end(args);
 }
-void FATAL(char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  printf("%s [FATAL] ", time_stamp());
-  vprintf(format, args);
-  printf(" ERROR: %s\n", strerror(errno));
-  va_end(args);
-  exit(1);
-}
+#else
+void DEBUG(char* format, ...){}
+#endif
 
+
+#if (LOG_LEVEL >= LOG_LEVEL_ERROR)
 void ERROR(char* format, ...) {
   va_list args;
   va_start(args, format);
-  printf("%s [ERROR] ", time_stamp());
+  char* ts = time_stamp();
+  printf("%s [ERROR] ", ts);
+  free(ts);
   vprintf(format, args);
   printf(" ERROR: %s\n", strerror(errno));
   va_end(args);
 }
+#else
+void ERROR(char* format, ...) {};
+#endif
 
-#elif (LOG_LEVEL == LOG_LEVEL_ERROR)
-void INFO(char* format, ...) {}
-void DEBUG(char* format, ...) {}
+#if (LOG_LEVEL >= LOG_LEVEL_FATAL)
 void FATAL(char* format, ...) {
   va_list args;
   va_start(args, format);
-  printf("%s [FATAL] ", time_stamp());
-  vprintf(format, args);
-  printf(" ERROR: %s\n", strerror(errno));
-  va_end(args);
-  exit(1);
-}
-
-void ERROR(char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  printf("%s [ERROR] ", time_stamp());
-  vprintf(format, args);
-  printf(" ERROR: %s\n", strerror(errno));
-  va_end(args);
-}
-#elif (LOG_LEVEL == LOG_LEVEL_FATAL)
-void INFO(char* format, ...) {}
-void DEBUG(char* format, ...) {}
-void FATAL(char* format, ...) {
-  va_list args;
-  va_start(args, format);
-  printf("%s [FATAL] ", time_stamp());
+  char* ts = time_stamp();
+  printf("%s [FATAL] ",ts );
+  free(ts);
   vprintf(format, args);
   va_end(args);
   printf(" ERROR: %s\n", strerror(errno));
   exit(1);
 }
-void ERROR(char* format, ...) {}
+#else
+void FATAL(char* format, ...) {exit(1)};
 #endif
