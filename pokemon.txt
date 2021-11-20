@@ -43,8 +43,6 @@ baltoy
 banette
 barbaracle
 barboach
-barraskewda
-basculegion
 basculin
 bastiodon
 bayleef
@@ -61,7 +59,6 @@ bibarel
 bidoof
 binacle
 bisharp
-blacephalon
 blastoise
 blaziken
 blipbug
@@ -101,7 +98,6 @@ castform
 caterpie
 celebi
 celesteela
-centiskorch
 chandelure
 chansey
 charizard
@@ -140,12 +136,9 @@ conkeldurr
 copperajah
 corphish
 corsola
-corviknight
-corvisquire
 cosmoem
 cosmog
 cottonee
-crabominable
 crabrawler
 cradily
 cramorant
@@ -256,7 +249,6 @@ flaaffy
 flabebe
 flapple
 flareon
-fletchinder
 fletchling
 floatzel
 floette
@@ -588,13 +580,11 @@ politoed
 poliwag
 poliwhirl
 poliwrath
-polteageist
 ponyta
 poochyena
 popplio
 porygon
 porygonz
-porygon
 primarina
 primeape
 prinplup
@@ -748,7 +738,6 @@ starmie
 staryu
 steelix
 steenee
-stonjourner
 stoutland
 stufful
 stunfisk

@@ -1,7 +1,7 @@
 IDIR =inc
 CC=gcc
 LOG_LEVEL ?= 1
-CFLAGS=-I$(IDIR) -DLOG_LEVEL=$(LOG_LEVEL) -Wall -lpthread
+CFLAGS=-I$(IDIR) -DLOG_LEVEL=$(LOG_LEVEL) -Wall -lpthread -g
 
 SDIR=src
 ODIR=obj

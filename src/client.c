@@ -40,6 +40,7 @@ int read_message_from_server(int socket, char* buf) {
   unsigned total = 0;
   while (count && (!strchr(buf, '\n'))) {
     count = recv(socket, buf + total, BUFSZ - total, 0);
+    if (count == -1) return -1;
     total += count;
   }
   return total;
@@ -47,9 +48,7 @@ int read_message_from_server(int socket, char* buf) {
 
 int send_message_to_server(int socket, char* msg) {
   DEBUG("sending message to server");
-  int count = send(socket, msg, strlen(msg) + 1, 0);
-  if (count != strlen(msg) + 1) return -1;
-  return count;
+  return send(socket, msg, strlen(msg), 0);
 }
 
 int main(int argc, char const* argv[]) {
@@ -66,29 +65,35 @@ int main(int argc, char const* argv[]) {
 
   int sock = 0;
 
+  if ((sock = socket(storage.ss_family, SOCK_STREAM, 0)) < 0) {
+    FATAL("socket creation failed");
+  }
+  if (connect(sock, addr, sizeof(storage)) < 0) {
+    FATAL("socket connection failed");
+  }
   char buf[BUFSZ] = {0};
   while (1) {
-    if ((sock = socket(storage.ss_family, SOCK_STREAM, 0)) < 0) {
-      FATAL("socket creation failed");
-    }
-    if (connect(sock, addr, sizeof(storage)) < 0) {
-      FATAL("socket connection failed");
-    }
     printf("> ");
     fgets(buf, BUFSZ, stdin);
-    send_message_to_server(sock, buf);
+    if (send_message_to_server(sock, buf) == -1) {
+      break;
+    }
 
     if (!strcmp(buf, "kill\n")) break;
 
     memset(buf, 0, BUFSZ);
 
-    read_message_from_server(sock, buf);
+
+    if (read_message_from_server(sock, buf) == -1) {
+      break;
+    }
 
     printf("< ");
 
-    puts(buf);
-    close(sock);
+    printf(buf);
   }
+
+  close(sock);
 
   return 0;
 }
