@@ -86,13 +86,13 @@ int main(int argc, char const* argv[]) {
     memset(buf, 0, BUFSZ);
 
 
-    if (read_message_from_server(sock, buf) == -1) {
+    int count = read_message_from_server(sock, buf);
+
+    if (count <= 0) {
       break;
     }
 
-    printf("< ");
-
-    printf(buf);
+    printf("< %s", buf);
   }
 
   close(sock);
